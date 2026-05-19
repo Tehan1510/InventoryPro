@@ -1,0 +1,118 @@
+<UserControl x:Class="InventoryApp.Views.StockView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="28">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Stock Transactions" Style="{StaticResource SectionTitle}"/>
+            <Button Content="+ New Transaction" Style="{StaticResource PrimaryButton}"
+                    Command="{Binding ShowFormCommand}"
+                    HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        </Grid>
+
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <DataGrid ItemsSource="{Binding Transactions}"
+                      AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False"
+                      BorderThickness="0" GridLinesVisibility="Horizontal"
+                      HorizontalGridLinesBrush="{StaticResource BorderColorBrush}"
+                      RowBackground="White" AlternatingRowBackground="#F7FAFC" FontSize="13">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Product"    Binding="{Binding Product.Name}"                                          Width="*"/>
+                    <!-- Color-coded type badge -->
+                    <DataGridTemplateColumn Header="Type" Width="110">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="4" Padding="8,3" HorizontalAlignment="Left">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#BEE3F8"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Type}" Value="StockOut">
+                                                    <Setter Property="Background" Value="#FED7D7"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Type}" Value="Adjustment">
+                                                    <Setter Property="Background" Value="#FEFCBF"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding Type}" FontWeight="SemiBold" FontSize="12"/>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Qty"        Binding="{Binding Quantity}"                                              Width="60"/>
+                    <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice, StringFormat=\{0:C2\}}"                      Width="90"/>
+                    <DataGridTextColumn Header="By"         Binding="{Binding User.Username}"                                         Width="100"/>
+                    <DataGridTextColumn Header="Notes"      Binding="{Binding Notes}"                                                 Width="160"/>
+                    <DataGridTextColumn Header="Date"       Binding="{Binding TransactionDate, StringFormat=\{0:dd MMM yyyy HH:mm\}}" Width="160"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- New Transaction Form -->
+        <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,12,0,0"
+                Visibility="{Binding IsFormVisible, Converter={StaticResource BoolToVis}}">
+            <StackPanel>
+                <TextBlock Text="New Stock Transaction" FontSize="15" FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}" Margin="0,0,0,16"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="120"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="PRODUCT *" Style="{StaticResource FormLabel}"/>
+                        <ComboBox ItemsSource="{Binding Products}" SelectedItem="{Binding FormSelectedProduct}"
+                                  DisplayMemberPath="Name" Style="{StaticResource ComboInput}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="TYPE" Style="{StaticResource FormLabel}"/>
+                        <ComboBox ItemsSource="{Binding AllTypes}" SelectedItem="{Binding FormType}"
+                                  Style="{StaticResource ComboInput}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Text="QUANTITY *" Style="{StaticResource FormLabel}"/>
+                        <TextBox Text="{Binding FormQuantity, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource Input}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="6">
+                        <TextBlock Text="UNIT PRICE" Style="{StaticResource FormLabel}"/>
+                        <TextBox Text="{Binding FormUnitPrice, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource Input}"/>
+                    </StackPanel>
+                </Grid>
+                <TextBlock Text="NOTES" Style="{StaticResource FormLabel}" Margin="0,12,0,0"/>
+                <TextBox Text="{Binding FormNotes, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource Input}" Margin="0,0,0,12"/>
+
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource DangerBrush}"
+                           FontSize="12" Margin="0,0,0,10">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding StatusMessage}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Save Transaction" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" Command="{Binding SaveCommand}"/>
+                    <Button Content="Cancel"           Style="{StaticResource SecondaryButton}" Width="100"     Command="{Binding CancelCommand}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
