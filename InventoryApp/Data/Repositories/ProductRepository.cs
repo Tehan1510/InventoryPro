@@ -44,6 +44,7 @@ public class ProductRepository : BaseRepository<Product>
                 (p.Name.Contains(term) ||
                  p.SKU.Contains(term) ||
                  p.Description.Contains(term)))
+            .OrderBy(p => p.Name)
             .ToListAsync();
     }
 
